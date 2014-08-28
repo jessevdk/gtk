@@ -24,6 +24,10 @@
 
 #include "gtkshow.h"
 
+#ifdef GDK_WINDOWING_QUARTZ
+#import <Cocoa/Cocoa.h>
+#endif
+
 /**
  * gtk_show_uri:
  * @screen: (allow-none): screen to show the uri on
@@ -60,6 +64,10 @@ gtk_show_uri (GdkScreen    *screen,
   GdkDisplay *display;
 
   g_return_val_if_fail (uri != NULL, FALSE);
+
+#ifdef GDK_WINDOWING_QUARTZ
+  return [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:[NSString stringWithUTF8String:uri]]];
+#endif
 
   if (screen != NULL)
     display = gdk_screen_get_display (screen);
