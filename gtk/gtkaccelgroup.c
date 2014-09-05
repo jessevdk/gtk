@@ -76,6 +76,9 @@ static guint  quark_acceleratable_groups = 0;
 static guint  default_accel_mod_mask     = (GDK_SHIFT_MASK   |
                                             GDK_CONTROL_MASK |
                                             GDK_MOD1_MASK    |
+#ifdef GDK_WINDOWING_QUARTZ
+                                            GDK_MOD2_MASK    |
+#endif
                                             GDK_SUPER_MASK   |
                                             GDK_HYPER_MASK   |
                                             GDK_META_MASK);
