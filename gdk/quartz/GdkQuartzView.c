@@ -700,6 +700,8 @@
                                              userInfo:[[NSDictionary alloc] init]];
 
   [self addTrackingArea:trackingArea];
+
+  [self setNeedsInvalidateShadow:YES];
 }
 
 -(void)viewDidMoveToWindow
