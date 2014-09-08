@@ -165,8 +165,8 @@
                                      windowNumber: [impl->toplevel windowNumber]
                                           context: NULL
                                       eventNumber: 0
-                                   trackingNumber: [impl->view trackingRect]
-                                         userData: nil];
+                                   trackingNumber: 0
+                                         userData: [[impl->view trackingArea] userInfo]];
 
           [NSApp postEvent:event atStart:NO];
         }

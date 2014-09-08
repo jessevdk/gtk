@@ -63,6 +63,8 @@ struct _GdkWindowImplQuartz
   cairo_surface_t *cairo_surface;
 
   gint shadow_top;
+
+  cairo_region_t *input_shape_region;
 };
  
 struct _GdkWindowImplQuartzClass 

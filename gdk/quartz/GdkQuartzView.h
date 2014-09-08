@@ -35,7 +35,7 @@
 @interface GdkQuartzView : NSView <NSTextInputClient>
 {
   GdkWindow *gdk_window;
-  NSTrackingRectTag trackingRect;
+  NSTrackingArea *trackingArea;
   BOOL needsInvalidateShadow;
   NSRange markedRange;
   NSRange selectedRange;
@@ -43,7 +43,7 @@
 
 - (void)setGdkWindow: (GdkWindow *)window;
 - (GdkWindow *)gdkWindow;
-- (NSTrackingRectTag)trackingRect;
+- (NSTrackingArea *)trackingArea;
 - (void)setNeedsInvalidateShadow: (BOOL)invalidate;
 
 @end

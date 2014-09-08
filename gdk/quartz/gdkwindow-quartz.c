@@ -217,6 +217,9 @@ gdk_window_impl_quartz_finalize (GObject *object)
   if (impl->transient_for)
     g_object_unref (impl->transient_for);
 
+  if (impl->input_shape_region)
+    cairo_region_destroy (impl->input_shape_region);
+
   G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
@@ -931,6 +934,7 @@ _gdk_quartz_display_create_window_impl (GdkDisplay    *display,
 	  {
 	    [impl->toplevel setOpaque:NO];
 	    [impl->toplevel setBackgroundColor:[NSColor clearColor]];
+      [impl->toplevel setIgnoresMouseEvents:NO];
 	  }
 
         content_rect.origin.x = 0;
@@ -2033,7 +2037,28 @@ gdk_window_quartz_input_shape_combine_region (GdkWindow       *window,
                                               gint             offset_x,
                                               gint             offset_y)
 {
-  /* FIXME: Implement */
+  GdkWindowImplQuartz *window_impl;
+
+  if (GDK_WINDOW_DESTROYED (window))
+    return;
+
+  window_impl = GDK_WINDOW_IMPL_QUARTZ (window->impl);
+  if (!window_impl->toplevel)
+    return;
+
+  if (window_impl->input_shape_region != NULL)
+    {
+      cairo_region_destroy (window_impl->input_shape_region);
+      window_impl->input_shape_region = NULL;
+    }
+
+  if (shape_region != NULL)
+  {
+    window_impl->input_shape_region = cairo_region_copy (shape_region);
+    cairo_region_translate (window_impl->input_shape_region, offset_x, offset_y);
+  }
+
+  [window_impl->view updateTrackingAreas];
 }
 
 static void

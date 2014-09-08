@@ -832,7 +832,7 @@ find_window_for_ns_event (NSEvent *nsevent,
       /* Only handle our own entered/exited events, not the ones for the
        * titlebar buttons.
        */
-      if ([view trackingRect] == [nsevent trackingNumber])
+      if ([[view trackingArea] userInfo] == [nsevent userData])
         return toplevel;
       else
         return NULL;

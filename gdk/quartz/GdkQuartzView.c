@@ -549,10 +549,10 @@
 
 -(void)dealloc
 {
-  if (trackingRect)
+  if (trackingArea)
     {
-      [self removeTrackingRect: trackingRect];
-      trackingRect = 0;
+      [self removeTrackingArea: trackingArea];
+      trackingArea = NULL;
     }
 
   [super dealloc];
@@ -568,9 +568,9 @@
   return gdk_window;
 }
 
--(NSTrackingRectTag)trackingRect
+-(NSTrackingArea *)trackingArea
 {
-  return trackingRect;
+  return trackingArea;
 }
 
 -(BOOL)isFlipped
@@ -663,35 +663,43 @@
   needsInvalidateShadow = invalidate;
 }
 
-/* For information on setting up tracking rects properly, see here:
- * http://developer.apple.com/documentation/Cocoa/Conceptual/EventOverview/EventOverview.pdf
- */
--(void)updateTrackingRect
+-(void)updateTrackingAreas
 {
   GdkWindowImplQuartz *impl = GDK_WINDOW_IMPL_QUARTZ (gdk_window->impl);
   NSRect rect;
 
+  [super updateTrackingAreas];
+
   if (!impl->toplevel)
     return;
 
-  if (trackingRect)
+  if (trackingArea)
     {
-      [self removeTrackingRect: trackingRect];
-      trackingRect = 0;
+      [self removeTrackingArea: trackingArea];
+      trackingArea = NULL;
     }
 
-  if (!impl->toplevel)
-    return;
+  if (impl->input_shape_region != NULL)
+    {
+      cairo_rectangle_int_t extents;
 
-  /* Note, if we want to set assumeInside we can use:
-   * NSPointInRect ([[self window] convertScreenToBase:[NSEvent mouseLocation]], rect)
-   */
+      cairo_region_get_extents (impl->input_shape_region, &extents);
+      rect = [self bounds];
 
-  rect = [self bounds];
-  trackingRect = [self addTrackingRect: rect
-		  owner: self
-		  userData: nil
-		  assumeInside: NO];
+      rect = NSMakeRect(extents.x, extents.y, extents.width, extents.height);
+    }
+  else
+    rect = [self bounds];
+
+  trackingArea = [[NSTrackingArea alloc] initWithRect:rect
+                                              options:NSTrackingMouseEnteredAndExited |
+                                                      NSTrackingMouseMoved |
+                                                      NSTrackingCursorUpdate |
+                                                      NSTrackingActiveAlways
+                                                owner:self
+                                             userInfo:[[NSDictionary alloc] init]];
+
+  [self addTrackingArea:trackingArea];
 }
 
 -(void)viewDidMoveToWindow
@@ -699,15 +707,15 @@
   if (![self window]) /* We are destroyed already */
     return;
 
-  [self updateTrackingRect];
+  [self updateTrackingAreas];
 }
 
 -(void)viewWillMoveToWindow: (NSWindow *)newWindow
 {
-  if (newWindow == nil && trackingRect)
+  if (newWindow == nil && trackingArea)
     {
-      [self removeTrackingRect: trackingRect];
-      trackingRect = 0;
+      [self removeTrackingArea: trackingArea];
+      trackingArea = NULL;
     }
 }
 
@@ -716,7 +724,7 @@
   [super setFrame: frame];
 
   if ([self window])
-    [self updateTrackingRect];
+    [self updateTrackingAreas];
 }
 
 @end
