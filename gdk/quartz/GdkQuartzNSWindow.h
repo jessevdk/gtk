@@ -20,7 +20,7 @@
 #import <Foundation/Foundation.h>
 #include <glib.h>
 
-@interface GdkQuartzNSWindow : NSWindow {
+@interface GdkQuartzNSWindow : NSWindow <NSWindowDelegate> {
   BOOL    inMove;
   BOOL    inShowOrHide;
   BOOL    initialPositionKnown;
